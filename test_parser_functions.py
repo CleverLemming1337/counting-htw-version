@@ -23,7 +23,7 @@ def main():
     failures += 0 if check("expr simple", parse_message("1+2*3"), 7) else 1
     failures += 0 if check("expr paren", parse_message("(1+2)*3"), 9) else 1
     failures += 0 if check("expr unary", parse_message("-(-1)"), 1) else 1
-    failures += 0 if check("expr division round", parse_message("3/2"), 2) else 1
+    failures += 0 if check("expr division round", parse_message("3/2"), 1.5) else 1
     failures += 0 if check("expr with hex/bin", parse_message("0x10 + 0b11"), 19) else 1
 
     # evaluate_expression directly
@@ -32,6 +32,13 @@ def main():
     failures += (
         0 if check("eval factorial", evaluate_expression("factorial(4)"), 24) else 1
     )
+
+    # CJK numbers (十=10, 二十五=25, 一百=100, etc.)
+    failures += 0 if check("CJK 10", parse_message("\u5341"), 10) else 1
+    failures += 0 if check("CJK 25", parse_message("\u4e8c\u5341\u4e94"), 25) else 1
+    failures += 0 if check("CJK 100", parse_message("\u4e00\u767e"), 100) else 1
+    failures += 0 if check("CJK 1200", parse_message("\u4e00\u5343\u4e8c\u767e"), 1200) else 1
+    failures += 0 if check("CJK expr 10+5", parse_message("\u5341+\u4e94"), 15) else 1
 
     if failures:
         print(f"\n{failures} test(s) failed")
