@@ -224,7 +224,26 @@ def evaluate_expression(text: str):
             tokens.append(c)
             i += 1
             continue
-        # identifiers for functions or constants (e.g., sqrt, fac, pi, e)
+        # check for Klingon number (multi-word token) before
+        if c in "abcDegHIjlmnopqQrStuvwy'":
+            j = i
+            klingon_words = []
+            while j < len(s):
+                while j < len(s) and s[j].isspace():
+                    j += 1
+                if j >= len(s) or s[j] not in "abcDegHIjlmnopqQrStuvwy'":
+                    break
+                word_start = j
+                while j < len(s) and s[j] not in " +-*/()^" and not s[j].isspace():
+                    j += 1
+                klingon_words.append(s[word_start:j])
+            
+            klingon_val = parse_klingon_number(" ".join(klingon_words))
+            if klingon_val is not None:
+                tokens.append(klingon_val)
+                i = j
+                continue
+        # Functions, constants, roman numerals, CJK
         if c.isalpha():
             j = i
             while j < len(s) and (s[j].isalpha()):
@@ -239,7 +258,7 @@ def evaluate_expression(text: str):
             elif set(ident) <= set("IVXLCDMivxlcdm"):
                 tokens.append(parse_roman(ident))
             elif (cjk_val := parse_cjk_number(ident)) is not None:
-                tokens.append(cjk_val)
+                tokens.append(cjk_val)   
             else:
                 tokens.append(ident)
             i = j
